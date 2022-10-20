@@ -1,0 +1,16 @@
+services:
+    db:
+        image: postgres:alpine
+        restart: always
+        environment:
+          - POSTGRES_USER=pmontiel
+          - POSTGRES_PASSWORD=0000
+          - POSTGRES_DB=toto
+        ports:
+          - '5432:5432'
+        volumes: 
+          - db:/var/lib/postgresql/data
+
+volumes:
+  db:
+    driver: local

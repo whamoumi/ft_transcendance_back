@@ -1,0 +1,186 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Match Table
+
+model Matchs {
+  id Int @unique
+  name String?
+  members UserMatchs[]
+}
+
+model UserMatchs {
+  id Int          @unique
+  matchs   Matchs @relation(fields: [matchsId], references: [id])
+  user     User   @relation(fields: [userId], references: [id])
+  matchsId Int
+  userId  Int
+  Username String
+  AdverId Int
+  Advername String
+  AdverPicture String
+  scoreUser Int
+  scoreAdver Int
+  @@id([matchsId, userId])
+}
+
+// User Table
+
+model User {
+  id Int @unique
+  username String? @unique
+  picture String?
+  socketId String?
+	twoFactorSecret String?
+	isTwoFactorEnabled Boolean @default(false)
+	qrcode String?
+  level Int
+  exp Int
+  winning Int
+  losing Int
+  matchs UserMatchs[]
+  channels UserChannels[]
+  bloque Blocked[]
+  friends Friends[]
+  DM UserDM[]
+  presets Presets[]
+  ball String?
+  status String?
+}
+
+model UserChannels {
+  id Int          @unique
+  channels Channels @relation(fields: [channelsId], references: [id])
+  user     User   @relation(fields: [userId], references: [id])
+  channelsId Int
+  userId Int
+  socketId String
+  name String
+  admin Boolean
+  owner Boolean
+  ban Boolean
+  timeofban Int
+  durationofban Int
+  mute Boolean
+  timeofmute Int
+  durationofmute Int
+  kick Boolean
+  joined Boolean
+  @@id([channelsId, userId])
+}
+
+model Messages {
+  id Int          @unique
+  channels Channels @relation(fields: [channelId], references: [id])
+  channelId Int
+  name String
+  text String
+  //@@id([channelId])
+}
+
+model Blocked {
+  id Int          @unique
+  users User @relation(fields: [usersId], references: [id])
+  usersId Int @unique
+  idUser Int
+  name String
+  //@@id([usersId])
+}
+
+model Friends {
+  id Int          @unique
+  users User @relation(fields: [usersId], references: [id])
+  usersId Int
+  idUser Int @unique
+  name String
+  status String
+  //@@id([usersId])
+}
+
+model Presets {
+  id Int          @unique
+  users User @relation(fields: [usersId], references: [id])
+  usersId Int
+  paddle1 String
+  paddle2 String
+  floor String
+  wall String
+  ball String
+  //@@id([usersId])
+}
+
+model Admin {
+  id Int          @unique
+  channel Channels @relation(fields: [channelId], references: [id])
+  channelId Int
+  userId Int
+  @@id([channelId, userId])
+}
+
+model Owner {
+  id Int          @unique
+  channel Channels @relation(fields: [channelId], references: [id])
+  channelId Int
+  userId Int
+  //@@id([channelId])
+}
+
+model Invited {
+  id Int          @unique
+  channel Channels @relation(fields: [channelId], references: [id])
+  channelId Int
+  name String
+  userId Int
+  @@id([channelId, userId])
+}
+
+// Channel Table
+
+model Channels {
+  id Int @unique
+  name String? @unique
+  type String?
+  password String?
+  members UserChannels[]
+  message Messages[]
+  admin Admin[]
+  owner Owner[]
+  invite Invited[]
+}
+
+model DM {
+  id Int @unique
+  name String @unique 
+  members UserDM[]
+  messages DMessages[]
+}
+
+model UserDM {
+  id Int          @unique
+  DM DM           @relation(fields: [dmId], references: [id])
+  user User       @relation(fields: [userId], references: [id])
+  dmId Int
+  userId Int
+  name String
+  joined Boolean
+  @@id([dmId, userId])
+}
+
+model DMessages {
+  id Int @unique
+  DM DM @relation(fields: [dmId], references: [id], onDelete: Cascade)
+  dmId Int
+  userId Int
+  name String
+  text String
+  //@@id([dmId])
+}
